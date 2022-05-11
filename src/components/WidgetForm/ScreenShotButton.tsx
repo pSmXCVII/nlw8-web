@@ -3,12 +3,12 @@ import html2canvas from 'html2canvas';
 import { useState } from "react";
 import { Loading } from "../Loading";
 
-interface ScreenShotButtonProps {
+interface ScreenshotButtonProps {
   onScreenshotTook: (screenshot: string | null) => void;
   screenshot: string | null;
 }
 
-export function ScreenShotButton({ onScreenshotTook, screenshot }: ScreenShotButtonProps) {
+export function ScreenshotButton({ onScreenshotTook, screenshot }: ScreenshotButtonProps) {
   const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
 
   async function handleTakeScreenshot() {

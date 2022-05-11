@@ -1,8 +1,10 @@
 import { ArrowLeft, Camera } from "phosphor-react";
 import { FormEvent, useState } from "react";
 import { FeedbackType, feedbackTypes } from "..";
+import { api } from "../../../services/api";
 import { CloseButton } from "../../CloseButton";
-import { ScreenShotButton } from "../ScreenShotButton";
+import { Loading } from "../../Loading";
+import { ScreenshotButton } from "../ScreenshotButton";
 
 interface FeedbackContentStepProps {
   feedbackType: FeedbackType;
@@ -12,14 +14,22 @@ interface FeedbackContentStepProps {
 
 export function FeedbackContentStep({ feedbackType, onReturnStep, onFeedbackSent }:FeedbackContentStepProps) {
   
-  const [screenShot, setScreenshot] = useState<string | null>(null);
+  const [screenshot, setScreenshot] = useState<string | null>(null);
   const [textReport, setTextReport] = useState('');
-  
+  const [isSendFeedbacks, setIsSendFeedbacks] = useState(false);
+
   const feedbackTypeInfo = feedbackTypes[feedbackType];
 
-  function handleSubmitFeedback(event: FormEvent) {
+  async function handleSubmitFeedback(event: FormEvent) {
     event.preventDefault();
-    console.log({ textReport, feedbackType, screenShot})
+    setIsSendFeedbacks(true);
+    await api.post('/feedbacks', {
+      type: feedbackType,
+      comment: textReport,
+      screenshot,
+    });
+    
+    setIsSendFeedbacks(false);
     onFeedbackSent();
   }
 
@@ -54,13 +64,13 @@ export function FeedbackContentStep({ feedbackType, onReturnStep, onFeedbackSent
         />
 
         <footer className="flex gap-2">
-          <ScreenShotButton onScreenshotTook={setScreenshot} screenshot={screenShot}/>
+          <ScreenshotButton onScreenshotTook={setScreenshot} screenshot={screenshot}/>
           <button
             type="submit"
             className="p-2 bg-brand-500 rounded-md border-transparent flex-1 flex justify-center items-center text-sm hover:bg-brand-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500 transition-colors disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-500"
-            disabled={textReport.length < 10}
+            disabled={textReport.length < 10 || isSendFeedbacks}
           >
-            Enviar feedback
+            {isSendFeedbacks ? <Loading /> :'Enviar feedback'}
           </button>
         </footer>
       </form>
